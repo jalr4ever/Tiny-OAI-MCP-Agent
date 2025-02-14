@@ -10,35 +10,35 @@ What this agent do:
 sequenceDiagram
     participant User
     participant Main
-    participant MCP Client
-    participant MCP Server
+    participant MCP_Client
+    participant MCP_Server
     participant LLM
 
-    Note right of MCP Client: Initialization &amp; Tool Registration
-    Main-&gt;&gt;MCP Client: Create Client Instance
-    MCP Client-&gt;&gt;MCP Server: get_available_tools()
-    MCP Server--&gt;&gt;MCP Client: Return Tool List
-    MCP Client-&gt;&gt;LLM: Register Tools via Function Calling
+    Note right of MCP_Client: Initialization & Tool Registration
+    Main->>MCP_Client: Create Client Instance
+    MCP_Client->>MCP_Server: get_available_tools()
+    MCP_Server-->>MCP_Client: Return Tool List
+    MCP_Client->>LLM: Register Tools via Function Calling
     
     loop Interactive Session
-        User-&gt;&gt;Main: Enter Prompt
-        Main-&gt;&gt;LLM: Send Query
+        User->>Main: Enter Prompt
+        Main->>LLM: Send Query
         
-        Note right of LLM: LLM autonomously<br>decides tool usage
+        Note right of LLM: LLM autonomously decides tool usage
         
         alt LLM Decides to Use Tool
-            LLM--&gt;&gt;Main: Request Tool Call
-            Main-&gt;&gt;MCP Client: Execute Tool Call
-            MCP Client-&gt;&gt;MCP Server: Call Tool
-            MCP Server--&gt;&gt;MCP Client: Tool Response
-            MCP Client--&gt;&gt;Main: Tool Result
-            Main-&gt;&gt;LLM: Send Tool Result
-            LLM--&gt;&gt;Main: Final Response
+            LLM-->>Main: Request Tool Call
+            Main->>MCP_Client: Execute Tool Call
+            MCP_Client->>MCP_Server: Call Tool
+            MCP_Server-->>MCP_Client: Tool Response
+            MCP_Client-->>Main: Tool Result
+            Main->>LLM: Send Tool Result
+            LLM-->>Main: Final Response
         else Direct Response
-            LLM--&gt;&gt;Main: Direct Response
+            LLM-->>Main: Direct Response
         end
         
-        Main--&gt;&gt;User: Display Response
+        Main-->>User: Display Response
     end
 ```
 
