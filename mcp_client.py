@@ -147,11 +147,16 @@ async def agent_loop(query: str, tools: dict, messages: List[dict] = None):
     # detect how the LLM call was completed:
     # tool_calls: if the LLM used a tool
     # stop: If the LLM generated a general response, e.g. "Hello, how can I help you today?"
-    stop_reason = (
-        "tool_calls"
-        if first_response.choices[0].message.tool_calls is not None
-        else first_response.choices[0].finish_reason
-    )
+    stop_reason = None
+    try:
+        stop_reason = (
+            "tool_calls"
+            if first_response.choices[0].message.tool_calls is not None
+            else first_response.choices[0].finish_reason
+        )
+    except Exception as e:
+        print(f">>> Exception: {e}")
+        print(first_response)
 
     if stop_reason == "tool_calls":
         # Extract tool use details from response
