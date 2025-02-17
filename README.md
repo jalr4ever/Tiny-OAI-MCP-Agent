@@ -50,10 +50,72 @@ Considering that MCP was proposed by `Anthropic`, I [did not see](https://github
 
 The project actually has a high degree of overlap with the [mcp-openai-gemini-llama-example](https://github.com/philschmid/mcp-openai-gemini-llama-example) , but due to issues like dependency conflicts and code conflicts in the original repository, it is quite messy. So I specifically created this repository to clarify the problems I mentioned in my motivation.
 
+# Function Calling Support
+
+Please ensure that the model of the service provider you are using supports Function Calling. Note that whether Function Calling is supported is related to the provider and also to the model; **some models support Function Calling, but the provider deploying that model may not necessarily support it.**
+
+How to check if the model & provider supports function calling? 
+
+For example:
+
+**openrouter.ai** (Well this is a freaking display, as if it doesn't want to be seen.):
+
+![iShot_2025-02-17_20.34.03.png](https://s2.loli.net/2025/02/17/yjlRnSC7bgK34tF.png)
+
+**fireworks.ai**:
+
+![iShot_2025-02-17_20.37.56.png](https://s2.loli.net/2025/02/17/hSkvYVCnuoAHfMN.png)
+
 # Setup & Executing
-Setup environment：
+
+## .env
 
 Add `.env` to the project according to `.env.template` and fill in your OPENAI service provider information.
+
+Please refer to the format of the service providers I have tested below:
+
+✅ [OpenRouter](https://openrouter.ai/) + [qwen-turbo](https://openrouter.ai/qwen/qwen-turbo)	
+
+```
+OPENAI_API_KEY='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+OPENAI_API_BASE='https://openrouter.ai/api/v1'
+LLM_MODEL='qwen/qwen-turbo'
+```
+
+✅ [OpenRouter](https://openrouter.ai/) + [qwen-max](https://openrouter.ai/qwen/qwen-max)
+
+```
+OPENAI_API_KEY='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+OPENAI_API_BASE='https://openrouter.ai/api/v1'
+LLM_MODEL='qwen/qwen-max'
+```
+
+✅ [OpenRouter](https://openrouter.ai/) + [gpt-4o-mini](https://openrouter.ai/openai/gpt-4o-mini)
+
+```
+OPENAI_API_KEY='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+OPENAI_API_BASE='https://openrouter.ai/api/v1'
+LLM_MODEL='openai/gpt-4o-mini'
+```
+
+❌ [DeepSeek](https://api.deepseek.com) + deepseek-chat (🙁 Don't know the reason; the request didn't return an error, but it also didn't operate on the database.)
+
+```
+OPENAI_API_KEY='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+OPENAI_API_BASE='https://api.deepseek.com'
+LLM_MODEL='deepseek-chat'
+```
+
+```
+Enter your prompt (or 'quit' to exit): show tables
+
+Response: It seems there are no user-created tables in the database yet. The `sqlite_master` table is a system table that contains metadata about the database, such as the schema of all tables, indexes, and other objects.
+
+If you'd like to create a new table or perform any other operations, feel free to let me know! I can help you with creating tables, inserting data, or querying information. 😊
+
+```
+
+## Python Env
 
 ```bash
 conda create -n tiny-oai-mcp-agent python=3.11
@@ -61,7 +123,10 @@ pip install -r requirements.txt
 python agent.py
 ```
 
+## Output Example
+
 Example 1:
+
 ```bash
 Enter your prompt (or 'quit' to exit): show tables
 
@@ -95,6 +160,7 @@ If you have any tasks in mind for these tables or need more information, just le
 ```
 
 Example 2:
+
 ```bash
 (mcp-example) Warren@L-MBP Tiny-OAI-MCP-Agent % python mcp_client.py 
 
@@ -125,3 +191,27 @@ If you need to know anything else or want to perform any operations on this tabl
 Enter your prompt (or 'quit' to exit): quit
 
 ```
+
+Example 3:
+
+```
+(mcp-example) Warren@L-MBP Tiny-OAI-MCP-Agent % python mcp_client.py 
+
+Enter your prompt (or 'quit' to exit): show tabls
+
+Response: It looks like we have a few tables in our database: `users`, `stock`, and `students`. Would you like to know more about any of them? We could check the structure or see what's inside! What would you like to explore first?
+
+Enter your prompt (or 'quit' to exit): show metadata from users            
+
+Response: Sure thing! Here’s the metadata for the `users` table:
+
+- **id**: This is the primary key (unique identifier) for each user and it can hold integer values.
+- **name**: This field stores the user's name as text. It's a required field, so every entry must include a value here.
+- **age**: This field holds the user's age as an integer. Like the name field, it is also required.
+
+Would you like to dive deeper into this table? For example, we could look at some data within it or even add some new records. Let me know what sparks your interest!
+
+Enter your prompt (or 'quit' to exit): 
+
+```
+
