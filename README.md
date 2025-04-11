@@ -215,3 +215,49 @@ Enter your prompt (or 'quit' to exit):
 
 ```
 
+# LLM Interaction Log Details
+
+Whenever mcp-client sends a request to the LLM, it appends the supported tools to the interface.
+
+```python
+  first_response = await client.chat.completions.create(
+      model=MODEL,
+      messages=messages,
+      tools=([t["schema"] for t in tools.values()] if len(tools) > 0 else None),
+      max_tokens=4096,
+      temperature=0,
+  )
+```
+
+Therefore, the LLM will trigger and select the appropriate tool, which for the model is a standard Function Calling process. Since we're dealing with Function Calling, at the code level, there will definitely be two requests.
+
+Given that the protocol between MCP-Client and the LLM is HTTP, it naturally follows that we can capture the detailed requests and responses across the entire chain to explore the process in detail. Here, I'm using `lite-llm` as an AI Gateway to capture everything from my Prompt (request) to the LLM's answer (Response).
+
+```mermaid
+sequenceDiagram
+    participant User as 👷User
+    participant Proxy as ☁️ AI Proxy (LiteLLM UI Logs)
+    participant LLM as 🤖 LLM Provider(OpenAI Compatible)
+
+    User->>Proxy: Send Request
+    Note over User,Proxy: User interaction begins
+
+    Proxy->>Proxy: Log Request Details
+    Note over Proxy: Capture request metadata
+    
+    Proxy->>LLM: Forward Request
+    Note over Proxy,LLM: Proxy routes request to LLM
+
+    LLM-->>Proxy: Return Response
+    Note over LLM,Proxy: LLM processes and generates response
+
+    Proxy->>Proxy: Log Response Details
+    Note over Proxy: Record response metadata
+
+    Proxy->>User: Deliver Response
+    Note over Proxy,User: Final response sent back to user
+
+```
+
+If you're interested in the detailed interactions involved in this process, please check out this [link](llm-log-detail(by%20function%20calling).md).
+
