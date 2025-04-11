@@ -4,7 +4,7 @@ import os
 from typing import Any, List
 
 from dotenv import load_dotenv
-from mcp import ClientSession, StdioServerParameters
+from mcp import ClientSession, StdioServerParameters, ListToolsResult
 from mcp.client.stdio import stdio_client
 from openai import AsyncOpenAI
 
@@ -76,10 +76,8 @@ class MCPClient:
         if not self.session:
             raise RuntimeError("Not connected to MCP server")
 
-        tools = await self.session.list_tools()
-        _, tools_list = tools
-        _, tools_list = tools_list
-        return tools_list
+        list_tools: ListToolsResult = await self.session.list_tools()
+        return list_tools.tools
 
     def call_tool(self, tool_name: str) -> Any:
         """
